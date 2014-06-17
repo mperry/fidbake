@@ -5,3 +5,6 @@ target
 .project
 *.log
 *.iml
+
+.gradle
+build
