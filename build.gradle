@@ -1,0 +1,85 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+defaultTasks "build"
+
+ext {
+    isSnapshot = true
+    baseVersion = "0.1"
+}
+
+group = 'com.github.mperry'
+version = '0.1-SNAPSHOT'
+
+ext {
+    sonatypeBaseUrl = "https://oss.sonatype.org"
+    sonatypeSnapshotUrl = "$sonatypeBaseUrl/content/repositories/snapshots/"
+    sonatypeRepositoryUrl = "$sonatypeBaseUrl/content/groups/public"
+    sonatypeReleaseUrl = "$sonatypeBaseUrl/service/local/staging/deploy/maven2/"
+    sonatypeUploadUrl = isSnapshot ? sonatypeSnapshotUrl : sonatypeReleaseUrl
+
+    projectDescription = "Fidbake is a JBake template packaged as a jar"
+
+    projectUrl = "https://github.com/mperry/fidbake"
+    scmUrl = "https://github.com/mperry/fidbake.git"
+
+    primaryEmail = "maperry78@yahoo.com.au"
+
+}
+
+repositories {
+
+    mavenCentral()
+}
+
+
+dependencies {
+
+}
+
+Boolean doSigning() {
+    signingEnabled.trim() == "true"
+}
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            if (doSigning()) {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            }
+
+            repository(url: sonatypeUploadUrl) {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+            pom {
+                groupId = project.group
+                project {
+                    name project.name
+                    packaging 'jar'
+                    description projectDescription
+                    url projectUrl
+                    organization {
+                        name project.name
+                        url projectUrl
+                    }
+                    scm {
+                        url scmUrl
+                    }
+                    licenses {
+                        license {
+                            name "The MIT License"
+                            url "https://github.com/mperry/fidbake/blob/master/LICENSE"
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            email primaryEmail
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
