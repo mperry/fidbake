@@ -1,15 +1,17 @@
+
 apply plugin: 'java'
 apply plugin: 'maven'
 
 defaultTasks "build"
 
 ext {
-    isSnapshot = true
+    isSnapshot = false
     baseVersion = "0.1"
+
 }
 
-group = 'com.github.mperry'
-version = '0.1-SNAPSHOT'
+group = "com.github.mperry"
+version = "$baseVersion" + (isSnapshot ? "-SNAPSHOT" : "")
 
 ext {
     sonatypeBaseUrl = "https://oss.sonatype.org"
@@ -81,5 +83,25 @@ uploadArchives {
                 }
             }
         }
+    }
+}
+
+
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+//    archives groovydocJar
+    archives sourcesJar
+}
+
+if (doSigning()) {
+    apply plugin: "signing"
+    signing {
+        sign configurations.archives
     }
 }
